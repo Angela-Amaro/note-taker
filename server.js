@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 let dubs = require('./db/db.json');
 const squid = require('uniqid');
-const { application } = require('express');
+const { application, response } = require('express');
 
 const PORT = process.env.PORT || 3001;
 
@@ -23,3 +23,42 @@ app.get(`/api/notes`,(req,res) => res.json(dubs));
 
 app.get(`/notes`,(req,res) => res.sendFile(path.join(__dirname, `./public/notes.html`)));
 
+app.post('/api/notes', (req, res) =>{
+
+    const {title,text}=req.body
+    if (title && text) {
+      const note = {
+        title,
+        text: uniqid(),
+      };
+  
+      fs.readFile('./db/db.json', 'utf8', (err, data) => {
+        if (err) {
+          console.error(err);
+        } else {
+  
+          const formatNote = JSON.parse(data);
+  
+          formatNote.push(note);
+          notes = formatNote;
+  
+          fs.writeFile(
+            './db/db.json',
+            JSON.stringify(formatNote, null, 4),
+            (writeErr) =>
+              writeErr
+                ? console.error(writeErr)
+                : console.info('Successfully created a note')
+          );
+        }
+      });
+      const status = { status:`sucess, yay!`,
+         body:note,
+        }
+    console.log(status);
+    res.json(status);
+    }
+    else {
+        res.json(`no notes, how sad `)
+    }
+});
