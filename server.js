@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 let dubs = require('./db/db.json');
 const squid = require('uniqid');
-const { application, response } = require('express');
 
 const PORT = process.env.PORT || 3001;
 
@@ -17,11 +16,11 @@ app.use(express.urlencoded({
 
 app.use(express.static(`public`));
 
-app.get(`/`,(req,res) => res.sendFile(path.join(__dirname, `./public/index.html`)));
+app.get(`/`,(req,res) => res.sendFile(path.join(__dirname, `/public/index.html`)));
 
 app.get(`/api/notes`,(req,res) => res.json(dubs));
 
-app.get(`/notes`,(req,res) => res.sendFile(path.join(__dirname, `./public/notes.html`)));
+app.get(`/notes`,(req,res) => res.sendFile(path.join(__dirname, `/public/notes.html`)));
 
 app.post('/api/notes', (req, res) =>{
 
@@ -29,7 +28,7 @@ app.post('/api/notes', (req, res) =>{
     if (title && text) {
       const note = {
         title,
-        text: uniqid(),
+        text: squid(),
       };
   
       fs.readFile('./db/db.json', 'utf8', (err, data) => {
@@ -40,7 +39,7 @@ app.post('/api/notes', (req, res) =>{
           const formatNote = JSON.parse(data);
   
           formatNote.push(note);
-          notes = formatNote;
+          dubs = formatNote;
   
           fs.writeFile(
             './db/db.json',
@@ -62,3 +61,7 @@ app.post('/api/notes', (req, res) =>{
         res.json(`no notes, how sad `)
     }
 });
+
+app.listen(PORT,() => 
+    console.log(`App is listening at http://localhost:${PORT}`)
+);
